@@ -5,16 +5,34 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "أكواد GS1 مصر | البحث في أكواد المنظومة الضريبية",
+  title: "أكواد GS1 مصر | منظومة الفاتورة الإلكترونية",
   description:
-    "محرك بحث ذكي لأكواد GS1 الخاصة بالمنظومة الضريبية المصرية والفواتير الإلكترونية. ابحث عن كود أي منتج أو خدمة بسهولة.",
+    "المحرك الذكي الأسرع والأدق للبحث في أكواد GS1 الضريبية في مصر. استعرض أكثر من 5,000 كود GPC لتسجيل فواتيرك الإلكترونية بسهولة تامة.",
   keywords:
-    "GS1, أكواد, فاتورة إلكترونية, ضرائب, مصر, GPC, منظومة ضريبية, e-invoicing",
+    "GS1, أكواد, فاتورة إلكترونية, ضرائب, مصر, GPC, منظومة ضريبية, e-invoicing, كود صنف, مصلحة الضرائب",
+  authors: [{ name: "Moemen Hamdy" }],
+  creator: "Moemen Hamdy",
   openGraph: {
-    title: "أكواد GS1 مصر",
-    description: "ابحث عن أكواد المنظومة الضريبية المصرية",
+    title: "أكواد GS1 مصر | البحث في أكواد المنظومة الضريبية",
+    description: "محرك بحث ذكي لأكواد الضريبة والفواتير الإلكترونية (GPC & GS1) في مصر. حمل ملف الإكسيل مجاناً.",
+    url: "https://gs1-lookup.moemenhamdy.com",
+    siteName: "أكواد GS1 مصر",
     locale: "ar_EG",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "أكواد GS1 مصر - البحث الذكي",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "أكواد GS1 مصر | منظومة الفاتورة الإلكترونية",
+    description: "ابحث، تصفح، وحمّل أكواد GPC الخاصة بمنظومة الفواتير الإلكترونية المصرية.",
+    images: ["/og-image.png"],
   },
 };
 

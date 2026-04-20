@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://gs1-lookup.moemenhamdy.com'),
   title: "أكواد GS1 مصر | منظومة الفاتورة الإلكترونية",
   description:
     "المحرك الذكي الأسرع والأدق للبحث في أكواد GS1 الضريبية في مصر. استعرض أكثر من 5,000 كود GPC لتسجيل فواتيرك الإلكترونية بسهولة تامة.",
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
     "GS1, أكواد, فاتورة إلكترونية, ضرائب, مصر, GPC, منظومة ضريبية, e-invoicing, كود صنف, مصلحة الضرائب",
   authors: [{ name: "Moemen Hamdy" }],
   creator: "Moemen Hamdy",
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: "أكواد GS1 مصر | البحث في أكواد المنظومة الضريبية",
     description: "محرك بحث ذكي لأكواد الضريبة والفواتير الإلكترونية (GPC & GS1) في مصر. حمل ملف الإكسيل مجاناً.",
@@ -33,6 +37,14 @@ export const metadata: Metadata = {
     title: "أكواد GS1 مصر | منظومة الفاتورة الإلكترونية",
     description: "ابحث، تصفح، وحمّل أكواد GPC الخاصة بمنظومة الفواتير الإلكترونية المصرية.",
     images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-icon.png',
   },
 };
 

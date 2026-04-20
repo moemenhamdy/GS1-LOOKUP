@@ -8,7 +8,7 @@ const rateLimitMap = new Map<string, { count: number; expiresAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 30; // 30 requests per IP per minute per edge node
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Only apply to /api/ routes
   if (!request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();

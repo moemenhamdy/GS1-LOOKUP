@@ -15,8 +15,7 @@ export function middleware(request: NextRequest) {
   }
 
   // 1. IP Rate Limiting
-  let ip = request.ip || 
-           request.headers.get("x-forwarded-for")?.split(",")[0] || 
+  let ip = request.headers.get("x-forwarded-for")?.split(",")[0] || 
            request.headers.get("x-real-ip") || 
            "unknown";
            

@@ -1,3 +1,20 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "روابط مهمة",
+  description:
+    "روابط مفيدة للفاتورة الإلكترونية والمنظومة الضريبية المصرية — بوابة الفاتورة الإلكترونية، مصلحة الضرائب المصرية، GS1 مصر، ودليل أكواد EGS.",
+  alternates: {
+    canonical: "/links",
+  },
+  openGraph: {
+    title: "روابط مهمة | أكواد GS1 مصر",
+    description:
+      "روابط مفيدة هتحتاجها في شغلك مع الفاتورة الإلكترونية والمنظومة الضريبية.",
+    url: "https://gs1-lookup.moemenhamdy.com/links",
+  },
+};
+
 const links = [
   {
     title: "بوابة الفاتورة الإلكترونية",

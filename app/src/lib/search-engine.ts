@@ -15,6 +15,95 @@ export interface SearchResult {
   similarity: number;
 }
 
+// ── Arabic Text Normalization ──────────────────────────────────────────
+
+const TASHKEEL_REGEX = /[\u064B-\u065F\u0670]/g; // Fathatan through Hamza below
+
+function normalizeArabic(text: string): string {
+  let normalized = text.toLowerCase();
+  // Remove tashkeel/diacritics
+  normalized = normalized.replace(TASHKEEL_REGEX, "");
+  // Normalize hamza variants → ا
+  normalized = normalized.replace(/[أإآٱ]/g, "ا");
+  // Normalize taa marbuta → ه
+  normalized = normalized.replace(/ة/g, "ه");
+  // Normalize alef maqsura → ي
+  normalized = normalized.replace(/ى/g, "ي");
+  // Normalize waw with hamza
+  normalized = normalized.replace(/ؤ/g, "و");
+  // Normalize yaa with hamza
+  normalized = normalized.replace(/ئ/g, "ي");
+  // Collapse multiple spaces
+  normalized = normalized.replace(/\s+/g, " ").trim();
+  return normalized;
+}
+
+// ── Trigram Index for Fuzzy Matching ────────────────────────────────────
+
+function extractTrigrams(text: string): Set<string> {
+  const trigrams = new Set<string>();
+  const padded = `  ${text} `;
+  for (let i = 0; i < padded.length - 2; i++) {
+    trigrams.add(padded.substring(i, i + 3));
+  }
+  return trigrams;
+}
+
+function trigramSimilarity(setA: Set<string>, setB: Set<string>): number {
+  if (setA.size === 0 || setB.size === 0) return 0;
+  let intersection = 0;
+  for (const trigram of setA) {
+    if (setB.has(trigram)) intersection++;
+  }
+  return (2 * intersection) / (setA.size + setB.size);
+}
+
+// Cached trigram index (built once on first autocomplete)
+let trigramIndex: Map<string, { trigrams: Set<string>; normalizedName: string }> | null = null;
+
+function getTrigramIndex(): Map<string, { trigrams: Set<string>; normalizedName: string }> {
+  if (trigramIndex) return trigramIndex;
+
+  const data = loadData();
+  trigramIndex = new Map();
+
+  for (const item of data.allItems) {
+    const normalizedName = normalizeArabic(item.name);
+    const trigrams = extractTrigrams(normalizedName);
+    trigramIndex.set(item.id, { trigrams, normalizedName });
+  }
+
+  return trigramIndex;
+}
+
+// ── Autocomplete Query Cache ───────────────────────────────────────────
+
+const autocompleteCache = new Map<string, { results: GS1Item[]; cachedAt: number }>();
+const CACHE_TTL_MS = 60_000; // 60 seconds
+
+function getCachedAutocomplete(key: string): GS1Item[] | null {
+  const entry = autocompleteCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.cachedAt > CACHE_TTL_MS) {
+    autocompleteCache.delete(key);
+    return null;
+  }
+  return entry.results;
+}
+
+function setCachedAutocomplete(key: string, results: GS1Item[]): void {
+  // Limit cache size
+  if (autocompleteCache.size > 500) {
+    const now = Date.now();
+    for (const [k, v] of autocompleteCache.entries()) {
+      if (now - v.cachedAt > CACHE_TTL_MS) autocompleteCache.delete(k);
+    }
+  }
+  autocompleteCache.set(key, { results, cachedAt: Date.now() });
+}
+
+// ── Core Search Functions ──────────────────────────────────────────────
+
 function cosineSimilarity(
   vecA: number[],
   normA: number,
@@ -174,32 +263,83 @@ export async function semanticSearch(
   return { results, queryTimeMs };
 }
 
+// ── Enhanced Autocomplete ──────────────────────────────────────────────
+
 export function autocompleteSearch(query: string, limit: number = 8): GS1Item[] {
   if (!query || query.length < 2) return [];
 
-  const data = loadData();
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeArabic(query.trim());
 
-  const results: { item: GS1Item; priority: number }[] = [];
+  // Check cache first
+  const cached = getCachedAutocomplete(normalizedQuery);
+  if (cached) return cached;
+
+  const data = loadData();
+  const tIndex = getTrigramIndex();
+  const queryTrigrams = extractTrigrams(normalizedQuery);
+  const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 0);
+
+  const results: { item: GS1Item; priority: number; score: number }[] = [];
 
   for (const item of data.allItems) {
-    const nameNorm = item.name.toLowerCase();
+    const indexEntry = tIndex.get(item.id);
+    if (!indexEntry) continue;
+
+    const { normalizedName, trigrams: itemTrigrams } = indexEntry;
     const codeMatch = item.code.includes(normalizedQuery);
 
     if (codeMatch) {
-      results.push({ item, priority: 0 }); // Exact code match = highest priority
-    } else if (nameNorm.includes(normalizedQuery)) {
-      const startsWithQuery = nameNorm.startsWith(normalizedQuery);
-      results.push({ item, priority: startsWithQuery ? 1 : 2 });
+      // Exact code match = highest priority
+      results.push({ item, priority: 0, score: 1 });
+    } else if (normalizedName === normalizedQuery) {
+      // Exact name match
+      results.push({ item, priority: 0, score: 0.99 });
+    } else if (normalizedName.startsWith(normalizedQuery)) {
+      // Starts with query
+      results.push({ item, priority: 1, score: 0.9 });
+    } else if (normalizedName.includes(normalizedQuery)) {
+      // Contains query as substring
+      results.push({ item, priority: 2, score: 0.8 });
+    } else if (queryWords.length > 1) {
+      // Multi-word: check if ALL query words appear in the name
+      const allWordsMatch = queryWords.every(w => normalizedName.includes(w));
+      if (allWordsMatch) {
+        results.push({ item, priority: 2, score: 0.75 });
+      } else {
+        // Check how many words match
+        const matchCount = queryWords.filter(w => normalizedName.includes(w)).length;
+        if (matchCount > 0) {
+          const ratio = matchCount / queryWords.length;
+          if (ratio >= 0.5) {
+            results.push({ item, priority: 3, score: 0.5 + ratio * 0.2 });
+          }
+        }
+      }
     } else {
-      // Check category path
-      const pathText = item.categoryPath.join(" ").toLowerCase();
-      if (pathText.includes(normalizedQuery)) {
-        results.push({ item, priority: 3 });
+      // Trigram fuzzy matching for single words / typo tolerance
+      const similarity = trigramSimilarity(queryTrigrams, itemTrigrams);
+      if (similarity >= 0.3) {
+        results.push({ item, priority: 4, score: similarity });
+      } else {
+        // Check category path as last resort
+        const pathNorm = normalizeArabic(item.categoryPath.join(" "));
+        if (pathNorm.includes(normalizedQuery)) {
+          results.push({ item, priority: 5, score: 0.3 });
+        }
       }
     }
   }
 
-  results.sort((a, b) => a.priority - b.priority);
-  return results.slice(0, limit).map((r) => r.item);
+  // Sort by priority first, then by score within same priority
+  results.sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return b.score - a.score;
+  });
+
+  const finalResults = results.slice(0, limit).map((r) => r.item);
+
+  // Cache the results
+  setCachedAutocomplete(normalizedQuery, finalResults);
+
+  return finalResults;
 }

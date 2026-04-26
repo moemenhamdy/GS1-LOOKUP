@@ -1,3 +1,20 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "عن الموقع",
+  description:
+    "تعرف على محرك بحث أكواد GS1 مصر — كيف يعمل البحث الذكي، ما هي أكواد GPC والتصنيف العالمي للمنتجات، وإزاي تستخدم الموقع للفاتورة الإلكترونية.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "عن أكواد GS1 مصر | كيف يعمل البحث الذكي",
+    description:
+      "تعرف على محرك البحث الذكي لأكواد الفاتورة الإلكترونية المصرية — كيف يعمل وكيف تستخدمه.",
+    url: "https://gs1-lookup.moemenhamdy.com/about",
+  },
+};
+
 export default function AboutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -89,7 +106,7 @@ export default function AboutPage() {
               {
                 step: "3",
                 title: "انسخ الكود",
-                desc: "كل نتيجة فيها كود GS1 الخاص بيها. انسخ الكود واستخدمه في الفاتورة الإلكترونية.",
+                desc: "اضغط على كود GS1 لنسخه تلقائياً واستخدمه في الفاتورة الإلكترونية.",
                 icon: "content_copy",
               },
               {

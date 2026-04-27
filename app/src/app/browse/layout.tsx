@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "تصفح أكواد GS1 مصر | جميع الأكواد مصنفة",
     description:
       "استعرض وحمّل جميع أكواد GPC للفاتورة الإلكترونية المصرية — مصنفة ومنظمة.",
-    url: "https://gs1-lookup.moemenhamdy.com/browse",
+    url: "https://gs1-lookup.moemenhamdy.me/browse",
   },
 };
 

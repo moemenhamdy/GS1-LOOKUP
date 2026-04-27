@@ -110,7 +110,7 @@ export function Footer() {
             <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1">
               صنع بـ <span className="text-red-500 text-sm">❤️</span> بواسطة{" "}
               <a
-                href="https://moemenhamdy.com"
+                href="https://moemenhamdy.me"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold text-primary-600 dark:text-primary-400 hover:underline"

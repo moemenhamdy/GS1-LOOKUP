@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "عن أكواد GS1 مصر | كيف يعمل البحث الذكي",
     description:
       "تعرف على محرك البحث الذكي لأكواد الفاتورة الإلكترونية المصرية — كيف يعمل وكيف تستخدمه.",
-    url: "https://gs1-lookup.moemenhamdy.com/about",
+    url: "https://gs1-lookup.moemenhamdy.me/about",
   },
 };
 

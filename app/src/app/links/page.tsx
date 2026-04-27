@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "روابط مهمة | أكواد GS1 مصر",
     description:
       "روابط مفيدة هتحتاجها في شغلك مع الفاتورة الإلكترونية والمنظومة الضريبية.",
-    url: "https://gs1-lookup.moemenhamdy.com/links",
+    url: "https://gs1-lookup.moemenhamdy.me/links",
   },
 };
 

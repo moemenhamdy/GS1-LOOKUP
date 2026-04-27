@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://gs1-lookup.moemenhamdy.com'),
+  metadataBase: new URL('https://gs1-lookup.moemenhamdy.me'),
   title: {
     default: "أكواد GS1 مصر | منظومة الفاتورة الإلكترونية",
     template: "%s | أكواد GS1 مصر",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "المحرك الذكي الأسرع والأدق للبحث في أكواد GS1 الضريبية في مصر. استعرض أكثر من 5,000 كود GPC لتسجيل فواتيرك الإلكترونية بسهولة تامة.",
   keywords:
     "GS1, أكواد, فاتورة إلكترونية, ضرائب, مصر, GPC, منظومة ضريبية, e-invoicing, كود صنف, مصلحة الضرائب, GS1 Egypt, tax codes, e-invoice, ETA, كود المنتج, الفاتورة الالكترونية",
-  authors: [{ name: "Moemen Hamdy", url: "https://moemenhamdy.com" }],
+  authors: [{ name: "Moemen Hamdy", url: "https://moemenhamdy.me" }],
   creator: "Moemen Hamdy",
   publisher: "Moemen Hamdy",
   alternates: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "أكواد GS1 مصر | البحث في أكواد المنظومة الضريبية",
     description: "محرك بحث ذكي لأكواد الضريبة والفواتير الإلكترونية (GPC & GS1) في مصر. ابحث، تصفح، وحمّل أكثر من 5,000 كود مجاناً.",
-    url: "https://gs1-lookup.moemenhamdy.com",
+    url: "https://gs1-lookup.moemenhamdy.me",
     siteName: "أكواد GS1 مصر",
     locale: "ar_EG",
     type: "website",
@@ -72,21 +72,21 @@ const jsonLd = {
   "@type": "WebSite",
   name: "أكواد GS1 مصر",
   alternateName: "GS1 Egypt Lookup",
-  url: "https://gs1-lookup.moemenhamdy.com",
+  url: "https://gs1-lookup.moemenhamdy.me",
   description: "محرك بحث ذكي لأكواد المنظومة الضريبية المصرية - GPC & GS1 codes for Egyptian e-invoicing",
   inLanguage: "ar",
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: "https://gs1-lookup.moemenhamdy.com/?q={search_term_string}",
+      urlTemplate: "https://gs1-lookup.moemenhamdy.me/?q={search_term_string}",
     },
     "query-input": "required name=search_term_string",
   },
   publisher: {
     "@type": "Person",
     name: "Moemen Hamdy",
-    url: "https://moemenhamdy.com",
+    url: "https://moemenhamdy.me",
   },
 };
 

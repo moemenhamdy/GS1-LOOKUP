@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronLeft, Tag, Filter, FolderOpen } from "lucide-react";
 
 interface Item {
   id: string;
@@ -38,49 +46,40 @@ function CategoryAccordion({ category }: { category: Category }) {
     );
 
   return (
-    <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-right px-5 py-4 flex items-center gap-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors"
-      >
-        <span
-          className={`material-icons-round text-primary-500 transition-transform duration-300 ${
-            isOpen ? "rotate-90" : ""
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="w-full text-right px-5 py-4 flex items-center gap-3 bg-card hover:bg-muted/50 transition-colors rounded-xl border border-border">
+        <ChevronLeft
+          className={`w-5 h-5 text-primary transition-transform duration-300 ${
+            isOpen ? "rotate-[-90deg]" : ""
           }`}
-        >
-          chevron_left
-        </span>
+        />
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+          <h3 className="text-sm font-semibold text-foreground truncate">
             {category.name}
           </h3>
           {category.code && (
-            <span className="mono-numbers text-xs text-slate-400 dark:text-slate-500">
+            <span className="mono-numbers text-xs text-muted-foreground">
               {category.code}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-lg mono-numbers">
+          <Badge variant="secondary" className="mono-numbers text-xs">
             {totalItems} عنصر
-          </span>
+          </Badge>
           {category.subcategories.length > 0 && (
-            <span className="text-xs text-primary-500 bg-primary-50 dark:bg-primary-900/30 px-2.5 py-1 rounded-lg mono-numbers">
+            <Badge variant="outline" className="mono-numbers text-xs text-primary border-primary/30">
               {category.subcategories.length} تصنيف فرعي
-            </span>
+            </Badge>
           )}
         </div>
-      </button>
+      </CollapsibleTrigger>
 
-      <div
-        className={`transition-all duration-300 overflow-hidden ${
-          isOpen ? "max-h-[5000px]" : "max-h-0"
-        }`}
-      >
-        <div className="px-5 pb-4 bg-slate-50/50 dark:bg-slate-800/50">
+      <CollapsibleContent>
+        <div className="px-5 pb-4 pt-2 bg-muted/30 rounded-b-xl border-x border-b border-border -mt-1">
           {/* Direct items */}
           {category.items && category.items.length > 0 && (
-            <div className="mt-3">
+            <div className="mt-2">
               <ItemsList items={category.items} />
             </div>
           )}
@@ -90,8 +89,8 @@ function CategoryAccordion({ category }: { category: Category }) {
             <SubcategorySection key={sub.id} subcategory={sub} />
           ))}
         </div>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -99,54 +98,43 @@ function SubcategorySection({ subcategory }: { subcategory: Subcategory }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="mt-3">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-right px-3 py-2.5 flex items-center gap-2 rounded-xl hover:bg-white dark:hover:bg-slate-700/50 transition-colors"
-      >
-        <span
-          className={`material-icons-round text-slate-400 text-[18px] transition-transform duration-200 ${
-            isOpen ? "rotate-90" : ""
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-2">
+      <CollapsibleTrigger className="w-full text-right px-3 py-2.5 flex items-center gap-2 rounded-lg hover:bg-card transition-colors">
+        <ChevronLeft
+          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+            isOpen ? "rotate-[-90deg]" : ""
           }`}
-        >
-          chevron_left
-        </span>
-        <span className="text-sm text-slate-700 dark:text-slate-300 flex-1 text-right truncate">
+        />
+        <span className="text-sm text-foreground/80 flex-1 text-right truncate">
           {subcategory.name}
         </span>
-        <span className="text-xs text-slate-400 dark:text-slate-500 mono-numbers shrink-0">
+        <span className="text-xs text-muted-foreground mono-numbers shrink-0">
           {subcategory.items?.length || 0}
         </span>
-      </button>
+      </CollapsibleTrigger>
 
-      <div
-        className={`transition-all duration-200 overflow-hidden ${
-          isOpen ? "max-h-[3000px]" : "max-h-0"
-        }`}
-      >
+      <CollapsibleContent>
         <div className="pr-8 mt-1">
           <ItemsList items={subcategory.items || []} />
         </div>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
 function ItemsList({ items }: { items: Item[] }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white dark:hover:bg-slate-700/30 transition-colors group"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-card transition-colors group"
         >
-          <span className="material-icons-round text-slate-300 dark:text-slate-600 text-[16px] group-hover:text-primary-400 transition-colors">
-            label
-          </span>
-          <span className="flex-1 text-sm text-slate-700 dark:text-slate-300 truncate">
+          <Tag className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+          <span className="flex-1 text-sm text-foreground/80 truncate">
             {item.name}
           </span>
-          <span className="mono-numbers text-xs text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 rounded-lg font-medium shrink-0 select-all">
+          <span className="mono-numbers text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-lg font-medium shrink-0 select-all">
             {item.code}
           </span>
         </div>
@@ -183,15 +171,13 @@ export function CategoryTree({ categories }: CategoryTreeProps) {
     <div>
       {/* Filter input */}
       <div className="mb-6 relative">
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 text-xl">
-          filter_list
-        </span>
-        <input
+        <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="فلتر التصنيفات..."
-          className="w-full pr-12 pl-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary-500 focus:outline-none transition-colors"
+          className="pr-12 rounded-xl"
           id="browse-filter"
         />
       </div>
@@ -203,10 +189,8 @@ export function CategoryTree({ categories }: CategoryTreeProps) {
             <CategoryAccordion key={category.id} category={category} />
           ))
         ) : (
-          <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-            <span className="material-icons-round text-4xl block mb-2">
-              folder_off
-            </span>
+          <div className="text-center py-8 text-muted-foreground">
+            <FolderOpen className="w-10 h-10 mx-auto mb-2 text-muted-foreground/40" />
             مفيش تصنيفات بالفلتر ده
           </div>
         )}

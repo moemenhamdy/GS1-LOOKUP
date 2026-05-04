@@ -1,6 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  Folder,
+  ChevronLeft,
+  SearchX,
+  Zap,
+  CheckCircle2,
+  Circle,
+  Copy,
+  Check,
+} from "lucide-react";
 
 interface SearchResultItem {
   item: {
@@ -19,52 +33,32 @@ interface SearchResultsProps {
   hasSearched: boolean;
 }
 
-// ── Toast Notification ─────────────────────────────────────────────────
-
-function Toast({ message, onClose }: { message: string; onClose: () => void }) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 2000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-toast-in">
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl shadow-xl shadow-black/20 text-sm font-medium">
-        <span className="material-icons-round text-emerald-400 dark:text-emerald-600 text-lg">
-          check_circle
-        </span>
-        {message}
-      </div>
-    </div>
-  );
-}
-
 // ── Similarity Badge ───────────────────────────────────────────────────
 
 function SimilarityBadge({ score }: { score: number }) {
-  let bgColor: string;
-  let textColor: string;
+  let variant: "default" | "secondary" | "outline" = "secondary";
+  let className = "";
+  let Icon = Circle;
 
   if (score >= 80) {
-    bgColor = "bg-emerald-100 dark:bg-emerald-900/40";
-    textColor = "text-emerald-700 dark:text-emerald-300";
+    variant = "default";
+    className = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border-0";
+    Icon = CheckCircle2;
   } else if (score >= 60) {
-    bgColor = "bg-amber-100 dark:bg-amber-900/40";
-    textColor = "text-amber-700 dark:text-amber-300";
+    variant = "default";
+    className = "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border-0";
+    Icon = CheckCircle2;
   } else {
-    bgColor = "bg-slate-100 dark:bg-slate-700";
-    textColor = "text-slate-600 dark:text-slate-300";
+    variant = "secondary";
+    className = "";
+    Icon = Circle;
   }
 
   return (
-    <span
-      className={`mono-numbers inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${bgColor} ${textColor}`}
-    >
-      <span className="material-icons-round text-[14px]">
-        {score >= 80 ? "verified" : score >= 60 ? "check_circle" : "circle"}
-      </span>
+    <Badge variant={variant} className={`mono-numbers gap-1 ${className}`}>
+      <Icon className="w-3.5 h-3.5" />
       {score.toFixed(1)}%
-    </span>
+    </Badge>
   );
 }
 
@@ -72,16 +66,18 @@ function SimilarityBadge({ score }: { score: number }) {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 space-y-3">
-          <div className="shimmer h-3 w-32 rounded-lg" />
-          <div className="shimmer h-5 w-48 rounded-lg" />
-          <div className="shimmer h-3 w-24 rounded-lg" />
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <Skeleton className="h-7 w-16" />
         </div>
-        <div className="shimmer h-7 w-16 rounded-lg" />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -93,13 +89,12 @@ export function SearchResults({
   isLoading,
   hasSearched,
 }: SearchResultsProps) {
-  const [toast, setToast] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyCode = async (code: string, itemId: string) => {
     try {
       await navigator.clipboard.writeText(code);
-      setToast(`تم نسخ الكود ${code}`);
+      toast.success(`تم نسخ الكود ${code}`);
       setCopiedId(itemId);
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
@@ -110,7 +105,7 @@ export function SearchResults({
       textArea.select();
       document.execCommand("copy");
       document.body.removeChild(textArea);
-      setToast(`تم نسخ الكود ${code}`);
+      toast.success(`تم نسخ الكود ${code}`);
       setCopiedId(itemId);
       setTimeout(() => setCopiedId(null), 2000);
     }
@@ -121,10 +116,8 @@ export function SearchResults({
   if (isLoading) {
     return (
       <div className="w-full max-w-2xl mx-auto mt-8 space-y-3">
-        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-          <span className="material-icons-round text-lg animate-spin">
-            progress_activity
-          </span>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           جاري البحث الذكي...
         </div>
         {[...Array(3)].map((_, i) => (
@@ -137,24 +130,19 @@ export function SearchResults({
   if (results.length === 0) {
     return (
       <div className="w-full max-w-2xl mx-auto mt-8 text-center py-12">
-        <span className="material-icons-round text-6xl text-slate-300 dark:text-slate-600 mb-4 block">
-          search_off
-        </span>
-        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+        <SearchX className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-foreground mb-2">
           مفيش نتائج
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           جرب تبحث بكلمات تانية أو استخدم اسم المنتج بالعربي
         </p>
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-400">جرب:</span>
+          <span className="text-xs text-muted-foreground">جرب:</span>
           {["أغذية", "إلكترونيات", "ملابس", "مستحضرات تجميل"].map((term) => (
-            <span
-              key={term}
-              className="text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-            >
+            <Badge key={term} variant="outline" className="text-xs">
               {term}
-            </span>
+            </Badge>
           ))}
         </div>
       </div>
@@ -164,43 +152,43 @@ export function SearchResults({
   const isTopResultHighScore = results[0]?.similarity >= 90;
 
   return (
-    <>
-      <div className="w-full max-w-2xl mx-auto mt-8 animate-fade-in-up">
-        {/* Results meta */}
-        <div className="flex items-center justify-between mb-4 px-1">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            <span className="mono-numbers font-semibold text-slate-700 dark:text-slate-200">
-              {results.length}
-            </span>{" "}
-            نتيجة
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
-              <span className="material-icons-round text-[12px]">bolt</span>
-              <span className="mono-numbers">{queryTimeMs}ms</span>
-            </span>
-          </div>
+    <div className="w-full max-w-2xl mx-auto mt-8 animate-fade-in-up">
+      {/* Results meta */}
+      <div className="flex items-center justify-between mb-4 px-1">
+        <p className="text-sm text-muted-foreground">
+          <span className="mono-numbers font-semibold text-foreground">
+            {results.length}
+          </span>{" "}
+          نتيجة
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Zap className="w-3 h-3" />
+            <span className="mono-numbers">{queryTimeMs}ms</span>
+          </span>
         </div>
+      </div>
 
-        {/* Results list */}
-        <div className="space-y-3 stagger-children">
-          {results.map((result, idx) => (
-            <div
-              key={result.item.id}
-              className={`bg-white dark:bg-slate-800 rounded-2xl p-5 border transition-all duration-200 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-black/20 cursor-default group ${
-                idx === 0 && isTopResultHighScore
-                  ? "border-primary-300 dark:border-primary-700 highlight-pulse ring-1 ring-primary-200 dark:ring-primary-800"
-                  : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-              }`}
-            >
+      {/* Results list */}
+      <div className="space-y-3 stagger-children">
+        {results.map((result, idx) => (
+          <Card
+            key={result.item.id}
+            className={`transition-all duration-200 hover:shadow-lg group ${
+              idx === 0 && isTopResultHighScore
+                ? "border-primary/50 highlight-pulse ring-1 ring-primary/20"
+                : "hover:border-border/80"
+            }`}
+          >
+            <CardContent className="p-5">
               {/* Top result badge */}
               {idx === 0 && isTopResultHighScore && (
                 <div className="flex items-center gap-1.5 mb-3">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                   </span>
-                  <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                  <span className="text-xs font-semibold text-primary">
                     أفضل نتيجة
                   </span>
                 </div>
@@ -211,18 +199,14 @@ export function SearchResults({
                   {/* Category path */}
                   {result.item.categoryPath.length > 0 && (
                     <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                      <span className="material-icons-round text-slate-400 text-[14px]">
-                        folder
-                      </span>
+                      <Folder className="w-3.5 h-3.5 text-muted-foreground" />
                       {result.item.categoryPath.map((cat, catIdx) => (
                         <span key={catIdx} className="flex items-center gap-1.5">
-                          <span className="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[200px]">
+                          <span className="text-xs text-muted-foreground truncate max-w-[200px]">
                             {cat}
                           </span>
                           {catIdx < result.item.categoryPath.length - 1 && (
-                            <span className="material-icons-round text-slate-300 dark:text-slate-600 text-[12px]">
-                              chevron_left
-                            </span>
+                            <ChevronLeft className="w-3 h-3 text-muted-foreground/40" />
                           )}
                         </span>
                       ))}
@@ -230,23 +214,27 @@ export function SearchResults({
                   )}
 
                   {/* Item name */}
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2 leading-relaxed">
+                  <h3 className="text-base font-semibold text-foreground mb-2 leading-relaxed">
                     {result.item.name}
                   </h3>
 
                   {/* Code with copy button */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                    <span className="text-xs text-muted-foreground">
                       كود GS1:
                     </span>
                     <button
                       onClick={() => handleCopyCode(result.item.code, result.item.id)}
-                      className="inline-flex items-center gap-1.5 mono-numbers text-sm font-semibold text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-3 py-0.5 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors cursor-pointer group/code"
+                      className="inline-flex items-center gap-1.5 mono-numbers text-sm font-semibold text-primary bg-primary/10 px-3 py-0.5 rounded-lg hover:bg-primary/20 transition-colors cursor-pointer group/code"
                       title="انسخ الكود"
                     >
                       {result.item.code}
-                      <span className="material-icons-round text-[14px] opacity-0 group-hover/code:opacity-100 transition-opacity text-primary-500">
-                        {copiedId === result.item.id ? "check" : "content_copy"}
+                      <span className="opacity-0 group-hover/code:opacity-100 transition-opacity">
+                        {copiedId === result.item.id ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 text-primary" />
+                        )}
                       </span>
                     </button>
                   </div>
@@ -255,13 +243,10 @@ export function SearchResults({
                 {/* Similarity score */}
                 <SimilarityBadge score={result.similarity} />
               </div>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Toast */}
-      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
-    </>
+    </div>
   );
 }

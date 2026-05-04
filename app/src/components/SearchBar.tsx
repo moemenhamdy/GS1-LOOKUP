@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, X, History, ArrowUpLeft, Loader2 } from "lucide-react";
 
 interface Suggestion {
   id: string;
@@ -152,7 +155,6 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
         e.preventDefault();
         setSelectedIndex((prev) => {
           const next = prev < totalItems - 1 ? prev + 1 : 0;
-          // Scroll into view
           requestAnimationFrame(() => {
             itemRefs.current[next]?.scrollIntoView({ block: "nearest" });
           });
@@ -215,7 +217,7 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
       <>
         {parts.map((part, i) =>
           regex.test(part) ? (
-            <span key={i} className="text-primary-600 dark:text-primary-400 font-bold bg-primary-50 dark:bg-primary-900/20 px-0.5 rounded">
+            <span key={i} className="text-primary font-bold bg-primary/10 px-0.5 rounded">
               {part}
             </span>
           ) : (
@@ -238,12 +240,10 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
         }`}
       >
         <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-          <span className="material-icons-round text-primary-500 text-2xl">
-            search
-          </span>
+          <Search className="w-5 h-5 text-primary" />
         </div>
 
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={query}
@@ -259,7 +259,7 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder="ابحث عن اسم المنتج أو الكود..."
-          className="w-full pr-12 pl-28 sm:pl-32 py-4 text-base rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-primary-500 dark:focus:border-primary-500 focus:outline-none transition-all duration-200"
+          className="!h-14 w-full pr-12 pl-32 sm:pl-36 text-base rounded-2xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20 transition-all duration-200"
           dir="rtl"
           autoComplete="off"
           id="search-input"
@@ -274,52 +274,45 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
           <button
             type="button"
             onClick={handleClear}
-            className="absolute left-24 sm:left-28 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10"
+            className="absolute left-28 sm:left-32 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-muted transition-colors z-10"
             aria-label="مسح البحث"
           >
-            <span className="material-icons-round text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-lg">
-              close
-            </span>
+            <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
           </button>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading || query.trim().length < 2}
-          className="absolute left-2 top-1/2 -translate-y-1/2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-l from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-primary-500/20 disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
-          id="search-button"
+          className="absolute left-2 top-1/2 -translate-y-1/2 !h-10 px-5 sm:px-6 bg-gradient-to-l from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-teal-500/20 disabled:shadow-none disabled:opacity-50 gap-2"
         >
           {isLoading ? (
             <>
-              <span className="material-icons-round text-lg animate-spin">
-                progress_activity
-              </span>
-              جاري البحث
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="hidden sm:inline">جاري البحث</span>
             </>
           ) : (
             <>
-              <span className="material-icons-round text-lg">search</span>
+              <Search className="w-4 h-4" />
               ابحث
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Dropdown */}
       {showDropdown && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/30 overflow-hidden z-50 animate-fade-in-up max-h-[400px] overflow-y-auto"
+          className="absolute top-full mt-2 w-full bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-50 animate-fade-in-up max-h-[400px] overflow-y-auto"
           role="listbox"
         >
           {/* Recent searches */}
           {showRecent && recentSearches.length > 0 && !query.trim() && (
             <>
-              <div className="px-4 py-2 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700/50">
-                <span className="material-icons-round text-slate-400 text-sm">
-                  history
-                </span>
-                <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              <div className="px-4 py-2 flex items-center gap-2 border-b border-border">
+                <History className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">
                   عمليات بحث سابقة
                 </span>
               </div>
@@ -331,21 +324,17 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
                   onClick={() => handleRecentClick(term)}
                   className={`w-full text-right px-4 py-3 flex items-center gap-3 transition-colors ${
                     idx === selectedIndex
-                      ? "bg-primary-50 dark:bg-primary-900/30"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                  } ${idx !== recentSearches.length - 1 ? "border-b border-slate-100 dark:border-slate-700/50" : ""}`}
+                      ? "bg-primary/10"
+                      : "hover:bg-muted"
+                  } ${idx !== recentSearches.length - 1 ? "border-b border-border" : ""}`}
                   role="option"
                   aria-selected={idx === selectedIndex}
                 >
-                  <span className="material-icons-round text-slate-400 text-lg shrink-0">
-                    history
-                  </span>
-                  <span className="flex-1 text-sm text-slate-700 dark:text-slate-300 truncate">
+                  <History className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="flex-1 text-sm text-foreground truncate">
                     {term}
                   </span>
-                  <span className="material-icons-round text-slate-300 dark:text-slate-600 text-sm">
-                    north_west
-                  </span>
+                  <ArrowUpLeft className="w-3.5 h-3.5 text-muted-foreground/50" />
                 </button>
               ))}
             </>
@@ -362,40 +351,38 @@ export function SearchBar({ onSearch, isLoading, inputRef: externalInputRef }: S
                   onClick={() => handleSuggestionClick(suggestion)}
                   className={`w-full text-right px-4 py-3 flex items-center gap-3 transition-colors ${
                     idx === selectedIndex
-                      ? "bg-primary-50 dark:bg-primary-900/30"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                  } ${idx !== suggestions.length - 1 ? "border-b border-slate-100 dark:border-slate-700/50" : ""}`}
+                      ? "bg-primary/10"
+                      : "hover:bg-muted"
+                  } ${idx !== suggestions.length - 1 ? "border-b border-border" : ""}`}
                   role="option"
                   aria-selected={idx === selectedIndex}
                 >
-                  <span className="material-icons-round text-slate-400 text-lg shrink-0">
-                    search
-                  </span>
+                  <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {highlightMatch(suggestion.name, query)}
                     </p>
                     {suggestion.categoryPath.length > 0 && (
-                      <p className="text-xs text-slate-400 dark:text-slate-500 truncate" dir="rtl">
+                      <p className="text-xs text-muted-foreground truncate" dir="rtl">
                         {suggestion.categoryPath.join(" / ")}
                       </p>
                     )}
                   </div>
-                  <span className="mono-numbers text-xs text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 rounded-lg font-medium shrink-0">
+                  <span className="mono-numbers text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-lg font-medium shrink-0">
                     {suggestion.code}
                   </span>
                 </button>
               ))}
 
               {/* Semantic search hint */}
-              <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-center gap-2">
-                <span className="text-xs text-slate-400 dark:text-slate-500">
+              <div className="px-4 py-2.5 bg-muted/50 border-t border-border flex items-center justify-center gap-2">
+                <span className="text-xs text-muted-foreground">
                   اضغط
                 </span>
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-500 dark:text-slate-400 shadow-sm">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-card border border-border rounded text-muted-foreground shadow-sm">
                   Enter
                 </kbd>
-                <span className="text-xs text-slate-400 dark:text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   للبحث الذكي
                 </span>
               </div>

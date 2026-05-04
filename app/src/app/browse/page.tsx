@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { CategoryTree } from "@/components/CategoryTree";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileSpreadsheet, FileText, Package, Folder, GitFork } from "lucide-react";
 
 interface Stats {
   totalItems: number;
@@ -52,68 +56,59 @@ export default function BrowsePage() {
       <div className="mb-8">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               تصفح الأكواد
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               استعرض كل أكواد المنظومة الضريبية مصنفة ومنظمة
             </p>
           </div>
 
           {/* Export buttons */}
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => handleExport("pdf")}
               disabled={isExporting}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white text-sm font-medium transition-colors shadow-lg shadow-red-600/20"
+              variant="destructive"
+              className="gap-2 shadow-lg shadow-red-600/20"
               id="export-pdf-btn"
             >
-              <span className="material-icons-round text-[18px]">
-                {isExporting ? "progress_activity" : "picture_as_pdf"}
-              </span>
+              <FileText className="w-4 h-4" />
               تحميل PDF
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleExport("excel")}
               disabled={isExporting}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white text-sm font-medium transition-colors shadow-lg shadow-emerald-600/20"
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
               id="export-excel-btn"
             >
-              <span className="material-icons-round text-[18px]">
-                {isExporting ? "progress_activity" : "table_chart"}
-              </span>
+              <FileSpreadsheet className="w-4 h-4" />
               تحميل Excel
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Stats */}
         {stats && (
-          <div className="flex items-center gap-4 mt-5 flex-wrap">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/30">
-              <span className="material-icons-round text-primary-500 text-[16px]">
-                inventory_2
-              </span>
-              <span className="text-xs text-primary-700 dark:text-primary-300 mono-numbers">
+          <div className="flex items-center gap-3 mt-5 flex-wrap">
+            <Badge variant="outline" className="gap-2 py-1.5 border-primary/30 bg-primary/5">
+              <Package className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs text-primary mono-numbers">
                 {stats.totalItems.toLocaleString()} منتج
               </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/30">
-              <span className="material-icons-round text-amber-500 text-[16px]">
-                folder
-              </span>
+            </Badge>
+            <Badge variant="outline" className="gap-2 py-1.5 border-amber-400/30 bg-amber-50 dark:bg-amber-900/20">
+              <Folder className="w-3.5 h-3.5 text-amber-500" />
               <span className="text-xs text-amber-700 dark:text-amber-300 mono-numbers">
                 {stats.totalCategories} تصنيف رئيسي
               </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700">
-              <span className="material-icons-round text-slate-500 text-[16px]">
-                subdirectory_arrow_left
-              </span>
-              <span className="text-xs text-slate-600 dark:text-slate-300 mono-numbers">
+            </Badge>
+            <Badge variant="outline" className="gap-2 py-1.5">
+              <GitFork className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground mono-numbers">
                 {stats.totalSubcategories} تصنيف فرعي
               </span>
-            </div>
+            </Badge>
           </div>
         )}
       </div>
@@ -122,10 +117,7 @@ export default function BrowsePage() {
       {isLoading ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="shimmer h-16 rounded-2xl"
-            />
+            <Skeleton key={i} className="h-16 rounded-2xl" />
           ))}
         </div>
       ) : (
